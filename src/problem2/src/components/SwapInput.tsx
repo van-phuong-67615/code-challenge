@@ -1,5 +1,6 @@
 import React, { useId } from 'react';
 import TokenSelector, { type TokenSelectorProps } from './TokenSelector';
+import { cn } from '@/lib/utils';
 
 export type SwapInputVariant = 'neutral' | 'error' | 'loading';
 
@@ -39,15 +40,20 @@ const SwapInput: React.FC<SwapInputProps> = ({
   const inputId = useId();
   const isSell = label === 'Sell';
 
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    // Chỉ cho phép chữ số và dấu phẩy, loại bỏ mọi ký tự khác
+    const raw = e.target.value;
+    const filtered = raw.replace(/[^0-9,]/g, '');
+    onChange(filtered);
+  };
+
   return (
     <div
-      className={[
-        'swap-section rounded-2xl px-4 py-3 border transition-all duration-150',
+      className={cn(
+        'swap-section rounded-2xl px-4 py-3 border transition-all duration-150 cursor-pointer',
         variantBorderMap[variant],
-        disabled ? 'opacity-60' : '',
-      ]
-        .filter(Boolean)
-        .join(' ')}
+        disabled ? 'opacity-60' : ''
+      )}
       style={{ background: '#111318' }}
       role="group"
       aria-label={`${label} section`}
@@ -85,11 +91,11 @@ const SwapInput: React.FC<SwapInputProps> = ({
         ) : (
           <input
             id={inputId}
-            type="number"
+            type="text"
             inputMode="decimal"
             placeholder="0"
             value={value}
-            onChange={(e) => onChange(e.target.value)}
+            onChange={handleChange}
             disabled={disabled}
             aria-label={`${label} amount`}
             aria-invalid={variant === 'error'}

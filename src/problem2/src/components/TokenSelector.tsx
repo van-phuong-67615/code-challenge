@@ -1,31 +1,15 @@
 import React, { useState } from 'react';
-import Menu from '@mui/material/Menu';
-import MenuItem from '@mui/material/MenuItem';
-import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
-
-// Token icon placeholder circle
-const TokenIconPlaceholder: React.FC<{ symbol: string }> = ({ symbol }) => (
-  <span
-    className="flex items-center justify-center rounded-full text-xs font-bold select-none"
-    style={{
-      width: 26,
-      height: 26,
-      background: 'linear-gradient(135deg, #4f46e5, #7c3aed)',
-      color: '#fff',
-      flexShrink: 0,
-      fontSize: 9,
-    }}
-    aria-hidden="true"
-  >
-    {symbol.slice(0, 2)}
-  </span>
-);
+import { ChevronDown } from 'lucide-react';
+import TokenIcon from './TokenIcon';
+import { Button } from '@/components/ui/button';
+import TokenPickerDialog from './TokenPickerDialog';
+import type { IToken } from '@/types';
 
 export interface TokenSelectorProps {
   /** The currently selected token symbol (e.g. "ETH") */
   value: string;
-  /** Called when the user picks a different token — pass an empty array to disable */
-  options?: string[];
+  /** Token map: key = symbol, value = IToken */
+  options?: Record<string, IToken>;
   onChange?: (token: string) => void;
   disabled?: boolean;
   'aria-label'?: string;
@@ -33,96 +17,58 @@ export interface TokenSelectorProps {
 
 const TokenSelector: React.FC<TokenSelectorProps> = ({
   value,
-  options = [],
+  options = {},
   onChange,
   disabled = false,
   'aria-label': ariaLabel,
 }) => {
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const open = Boolean(anchorEl);
+  const [open, setOpen] = useState(false);
 
-  const handleOpen = (event: React.MouseEvent<HTMLButtonElement>) => {
-    if (disabled || options.length === 0) return;
-    setAnchorEl(event.currentTarget);
-  };
+  const hasOptions = Object.keys(options).length > 0;
 
-  const handleClose = () => setAnchorEl(null);
-
-  const handleSelect = (token: string) => {
-    onChange?.(token);
-    handleClose();
+  const handleOpen = () => {
+    if (disabled || !hasOptions) return;
+    setOpen(true);
   };
 
   return (
     <>
-      <button
+      {/* Trigger button */}
+      <Button
         type="button"
-        className="token-selector flex items-center gap-2 px-3 py-2 rounded-full font-semibold text-sm text-white cursor-pointer border-0 outline-none focus-visible:ring-2 focus-visible:ring-indigo-400"
-        style={{
-          background: 'rgba(255,255,255,0.08)',
-          minWidth: 90,
-          letterSpacing: 0.3,
-        }}
+        variant="ghost"
+        className="token-selector flex items-center gap-2 px-3 py-2 rounded-full font-semibold text-sm text-white cursor-pointer border-0 outline-none focus-visible:ring-2 focus-visible:ring-indigo-400 h-auto bg-white/8 min-w-[90px] tracking-[0.3px] hover:bg-white/12 hover:text-white/80"
         onClick={handleOpen}
         disabled={disabled}
         aria-label={ariaLabel ?? `Select token, current: ${value}`}
-        aria-haspopup="listbox"
+        aria-haspopup="dialog"
         aria-expanded={open}
       >
-        <TokenIconPlaceholder symbol={value} />
+        <TokenIcon symbol={value} size="sm" />
         <span>{value}</span>
-        {options.length > 0 && (
-          <KeyboardArrowDownIcon
-            fontSize="small"
-            style={{
-              marginLeft: 'auto',
-              opacity: 0.6,
-              transition: 'transform 0.2s ease',
-              transform: open ? 'rotate(180deg)' : 'rotate(0deg)',
-            }}
+        {hasOptions && (
+          <ChevronDown
+            size={16}
+            className="ml-auto opacity-60 transition-transform duration-200"
+            style={{ transform: open ? 'rotate(180deg)' : 'rotate(0deg)' }}
           />
         )}
-      </button>
+      </Button>
 
-      {options.length > 0 && (
-        <Menu
-          anchorEl={anchorEl}
-          open={open}
-          onClose={handleClose}
-          slotProps={{
-            paper: {
-              style: {
-                background: '#1c1f26',
-                border: '1px solid rgba(255,255,255,0.1)',
-                borderRadius: 12,
-                boxShadow: '0 8px 32px rgba(0,0,0,0.6)',
-                minWidth: 140,
-                marginTop: 6,
-              },
-            },
-          }}
-        >
-          {options.map((token) => (
-            <MenuItem
-              key={token}
-              onClick={() => handleSelect(token)}
-              selected={token === value}
-              style={{
-                color: '#e5e7eb',
-                fontSize: 14,
-                fontWeight: token === value ? 600 : 400,
-                gap: 10,
-                paddingBlock: 10,
-              }}
-            >
-              <TokenIconPlaceholder symbol={token} />
-              {token}
-            </MenuItem>
-          ))}
-        </Menu>
-      )}
+      {/* Token picker dialog */}
+      <TokenPickerDialog
+        open={open}
+        onOpenChange={setOpen}
+        options={options}
+        value={value}
+        onSelect={(token) => {
+          onChange?.(token);
+          setOpen(false);
+        }}
+      />
     </>
   );
 };
 
 export default TokenSelector;
+

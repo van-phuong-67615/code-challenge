@@ -1,5 +1,6 @@
 import React from 'react';
-import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
+import { ArrowDownUp } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 export interface SwapButtonProps {
   onClick?: () => void;
@@ -13,26 +14,21 @@ const SwapButton: React.FC<SwapButtonProps> = ({
   'aria-label': ariaLabel = 'Switch sell and buy tokens',
 }) => {
   return (
-    <div className="flex justify-center items-center py-0.5 -my-3 relative z-10">
-      <button
+    <div className="flex justify-center items-center py-0.5 -my-6.5 relative z-10">
+      <Button
         type="button"
-        className="swap-arrow-btn flex items-center justify-center rounded-full border-0 cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-indigo-400"
+        variant="ghost"
+        className="swap-arrow-btn flex items-center justify-center rounded-full cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-indigo-400 p-0 size-[50px] bg-[#374151] border-[6px] border-[rgb(22,27,38)]"
         onClick={onClick}
         disabled={disabled}
         aria-label={ariaLabel}
-        style={{
-          width: 40,
-          height: 40,
-          background: '#1c2030',
-          boxShadow: '0 2px 12px rgba(0,0,0,0.5)',
-          border: '2px solid #0d1117',
-        }}
       >
-        <ArrowDownwardIcon
+        <ArrowDownUp
           className="swap-icon"
-          style={{ color: '#9ca3af', fontSize: 18 }}
+          size={18}
+          color="#FFF"
         />
-      </button>
+      </Button>
     </div>
   );
 };
