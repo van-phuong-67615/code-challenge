@@ -1,49 +1,53 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import SwapInput from "./SwapInput";
 import SwapButton from "./SwapButton";
 import { Button } from "@/components/ui/button";
 import useTokens from "@/hooks/useTokens";
-
-// Example placeholder options — consumer will replace with real token list
-const PLACEHOLDER_TOKENS = ["ETH", "USDT", "BTC", "USDC", "BNB", "SOL"];
-
-type UIState = "idle" | "loading" | "error" | "disabled";
+import FetchErrorBanner from "../FetchErrorBanner";
+import { calcExchangeRate } from "./mixin";
 
 const SwapCard: React.FC = () => {
   const [sellAmount, setSellAmount] = useState("");
   const [buyAmount, setBuyAmount] = useState("");
-  const [sellToken, setSellToken] = useState("ETH");
-  const [buyToken, setBuyToken] = useState("USDT");
-  const [uiState, setUiState] = useState<UIState>("idle");
   const { tokens, loading, error } = useTokens();
-  console.log("🚀 ~ SwapCard ~ tokens:", tokens)
+  const [sellToken, setSellToken] = useState<string | undefined>("ETH");
+  const [buyToken, setBuyToken] = useState<string | undefined>(undefined);
 
-  // UI state helpers — for demonstration / dev purposes
-  const isError = uiState === "error";
-  const isDisabled = uiState === "disabled";
-  const inputVariant = isError ? "error" : "neutral";
+  const exchangeRate = useMemo(() => {
+    if (
+      !tokens ||
+      !sellToken ||
+      !buyToken ||
+      !tokens[sellToken] ||
+      !tokens[buyToken]
+    )
+      return "";
+    return `1 ${sellToken} = ${calcExchangeRate(tokens[sellToken], tokens[buyToken])} ${buyToken}`;
+  }, [tokens, sellToken, buyToken]);
 
   return (
     <div
       className="swap-card-glow w-full p-4 rounded-3xl flex flex-col gap-0.5"
       style={{
-        maxWidth: 420,
+        maxWidth: 520,
         background: "#161b26",
       }}
       role="main"
       aria-label="Currency swap form"
     >
-      {/* Sell section */}
+      {/* ── Error banner ── */}
+      {error && <FetchErrorBanner error={error} />}
+
       <SwapInput
         label="Sell"
         value={sellAmount}
         onChange={setSellAmount}
         fiatValue="$0.00"
-        variant={inputVariant}
+        variant={"neutral"}
         loading={loading}
-        disabled={isDisabled}
+        disabled={loading}
         tokenSelectorProps={{
-          value: sellToken,
+          value: sellToken ?? "",
           options: tokens,
           onChange: setSellToken,
           "aria-label": "Select token to sell",
@@ -51,7 +55,7 @@ const SwapCard: React.FC = () => {
       />
 
       {/* Swap direction button */}
-      <SwapButton disabled={isDisabled || loading} />
+      <SwapButton disabled={loading} />
 
       {/* Buy section */}
       <SwapInput
@@ -59,12 +63,12 @@ const SwapCard: React.FC = () => {
         value={buyAmount}
         onChange={setBuyAmount}
         fiatValue="$0.00"
-        exchangeRate={`1 ${sellToken} = 0.00 ${buyToken}`}
-        variant={inputVariant}
+        exchangeRate={exchangeRate}
+        variant={"neutral"}
         loading={loading}
-        disabled={isDisabled}
+        disabled={loading}
         tokenSelectorProps={{
-          value: buyToken,
+          value: buyToken ?? "",
           options: tokens,
           onChange: setBuyToken,
           "aria-label": "Select token to buy",
@@ -76,9 +80,9 @@ const SwapCard: React.FC = () => {
         type="button"
         variant="default"
         className="get-started-btn w-full py-3.5 rounded-full text-white font-semibold text-base border-0 cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-indigo-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#161b26] mt-1 h-auto"
-        disabled={isDisabled || loading}
+        disabled={loading}
         aria-label="Get started with swap"
-        aria-disabled={isDisabled || loading}
+        aria-disabled={loading}
       >
         {loading ? (
           <span className="flex items-center justify-center gap-2">

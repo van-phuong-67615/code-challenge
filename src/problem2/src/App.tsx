@@ -1,12 +1,12 @@
-import SwapCard from "./components/SwapCard";
+import SwapCard from "./components/swap/SwapCard";
 
 function App() {
   return (
     <div
-      className="relative flex flex-col items-center justify-center min-h-screen px-4 py-12"
+      className="relative flex flex-col items-center justify-center min-h-screen px-4 py-12 w-full"
       style={{
         background:
-          "radial-gradient(ellipse 80% 50% at 50% 40%, rgba(0,180,160,0.12) 0%, transparent 70%), #0d1117",
+          "radial-gradient(ellipse 80% 100% at 50% 55%, rgba(0,180,160,0.12) 0%, transparent 70%), #0d1117",
       }}
     >
       {/* Heading */}

@@ -34,26 +34,51 @@ const TokenSelector: React.FC<TokenSelectorProps> = ({
   return (
     <>
       {/* Trigger button */}
-      <Button
-        type="button"
-        variant="ghost"
-        className="token-selector flex items-center gap-2 px-3 py-2 rounded-full font-semibold text-sm text-white cursor-pointer border-0 outline-none focus-visible:ring-2 focus-visible:ring-indigo-400 h-auto bg-white/8 min-w-[90px] tracking-[0.3px] hover:bg-white/12 hover:text-white/80"
-        onClick={handleOpen}
-        disabled={disabled}
-        aria-label={ariaLabel ?? `Select token, current: ${value}`}
-        aria-haspopup="dialog"
-        aria-expanded={open}
-      >
-        <TokenIcon symbol={value} size="sm" />
-        <span>{value}</span>
-        {hasOptions && (
+      {!value ? (
+        /* ── No selection: pink "Select token" pill ── */
+        <Button
+          type="button"
+          onClick={handleOpen}
+          disabled={disabled}
+          aria-label={ariaLabel ?? "Select token"}
+          aria-haspopup="dialog"
+          aria-expanded={open}
+          className="flex items-center gap-1.5 px-4 py-2 rounded-full font-semibold text-sm text-white cursor-pointer border-0 outline-none focus-visible:ring-2 focus-visible:ring-pink-400 h-auto tracking-wide"
+          style={{
+            background: "linear-gradient(90deg, #e0198c 0%, #ff4db8 100%)",
+            boxShadow: "0 0 16px 2px rgba(224,25,140,0.35)",
+          }}
+        >
+          Select token
           <ChevronDown
             size={16}
-            className="ml-auto opacity-60 transition-transform duration-200"
-            style={{ transform: open ? 'rotate(180deg)' : 'rotate(0deg)' }}
+            className="opacity-80 transition-transform duration-200"
+            style={{ transform: open ? "rotate(180deg)" : "rotate(0deg)" }}
           />
-        )}
-      </Button>
+        </Button>
+      ) : (
+        /* ── Token selected: icon + symbol ── */
+        <Button
+          type="button"
+          variant="ghost"
+          className="token-selector flex items-center gap-2 px-3 py-2 rounded-full font-semibold text-sm text-white cursor-pointer border-0 outline-none focus-visible:ring-2 focus-visible:ring-indigo-400 h-auto bg-white/8 min-w-[90px] tracking-[0.3px] hover:bg-white/12 hover:text-white/80"
+          onClick={handleOpen}
+          disabled={disabled}
+          aria-label={ariaLabel ?? `Select token, current: ${value}`}
+          aria-haspopup="dialog"
+          aria-expanded={open}
+        >
+          <TokenIcon symbol={value} size="sm" />
+          <span>{value}</span>
+          {hasOptions && (
+            <ChevronDown
+              size={16}
+              className="ml-auto opacity-60 transition-transform duration-200"
+              style={{ transform: open ? "rotate(180deg)" : "rotate(0deg)" }}
+            />
+          )}
+        </Button>
+      )}
 
       {/* Token picker dialog */}
       <TokenPickerDialog

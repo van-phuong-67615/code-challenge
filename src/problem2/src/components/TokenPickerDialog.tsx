@@ -4,6 +4,7 @@ import TokenIcon from './TokenIcon';
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
@@ -48,6 +49,9 @@ const TokenPickerDialog: React.FC<TokenPickerDialogProps> = ({
         {/* Header */}
         <DialogHeader className="px-5 pt-5 pb-0">
           <DialogTitle className='text-white'>Select a token</DialogTitle>
+          <DialogDescription className="sr-only">
+            Search and select a token from the list below.
+          </DialogDescription>
         </DialogHeader>
 
         {/* Search input */}
