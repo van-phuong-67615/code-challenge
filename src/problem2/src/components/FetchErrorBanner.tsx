@@ -1,13 +1,14 @@
 interface FetchErrorBannerProps {
   error: Error;
   onRetry?: () => void;
+  leaving?: boolean;
 }
 
-const FetchErrorBanner = ({ error, onRetry }: FetchErrorBannerProps) => (
+const FetchErrorBanner = ({ error, onRetry, leaving = false }: FetchErrorBannerProps) => (
   <div
     role="alert"
     aria-live="assertive"
-    className="flex items-start gap-3 rounded-2xl px-4 py-3 mb-1 bg-red-500/10 border border-red-500/30 text-red-400"
+    className={`flex items-start gap-3 rounded-2xl px-4 py-3 mb-1 bg-red-500/10 border border-red-500/30 text-red-400 ${leaving ? "banner-leave" : "banner-enter"}`}
   >
     {/* Icon */}
     <svg

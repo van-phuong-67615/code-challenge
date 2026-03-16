@@ -1,5 +1,5 @@
-import React, { useId } from "react";
-import TokenSelector, { type TokenSelectorProps } from "../TokenSelector";
+import React, { useEffect, useId, useRef } from "react";
+import TokenSelector, { type TokenSelectorHandle, type TokenSelectorProps } from "../TokenSelector";
 import { cn } from "@/lib/utils";
 
 export type SwapInputVariant = "neutral" | "error" | "loading";
@@ -10,6 +10,7 @@ export interface SwapInputProps {
   /** Controlled numeric value string */
   value: string;
   onChange: (v: string) => void;
+  switchFocus: () => void;
   /** Fiat equivalent display string (e.g. "$2,940.25") */
   fiatValue?: string;
   /** Exchange rate string shown in Buy section (e.g. "1 ETH = 2,450.21 USDT") */
@@ -18,10 +19,11 @@ export interface SwapInputProps {
   variant?: SwapInputVariant;
   loading?: boolean;
   disabled?: boolean;
+  isFocus?: boolean;
 }
 
 const variantBorderMap: Record<SwapInputVariant, string> = {
-  neutral: "border-transparent",
+  neutral: "border-[#374151]",
   error: "border-red-500",
   loading: "border-transparent",
 };
@@ -30,22 +32,45 @@ const SwapInput: React.FC<SwapInputProps> = ({
   label,
   value,
   onChange,
+  switchFocus,
   fiatValue = "$0.00",
   exchangeRate,
   tokenSelectorProps,
   variant = "neutral",
   loading = false,
   disabled = false,
+  isFocus = false,
 }) => {
+  
   const inputId = useId();
+  const inputRef = useRef<HTMLInputElement>(null);
+  const selectorRef = useRef<TokenSelectorHandle>(null);
   const isSell = label === "Sell";
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    // Chỉ cho phép chữ số và dấu phẩy, loại bỏ mọi ký tự khác
-    const raw = e.target.value;
-    const filtered = raw.replace(/[^0-9,]/g, "");
-    onChange(filtered);
+    // Chỉ cho phép chữ số và dấu chấm, loại bỏ mọi ký tự khác
+    const raw = e.target.value.replace(/[^0-9.]/g, "");
+    const stripped = raw.replace(/^0+(\d)/, '$1'); // "019999" → "19999"
+    onChange(stripped);
   };
+  const handleWrapperClick = () => {
+    if (!disabled && !loading) {
+      if(!tokenSelectorProps.value){
+        selectorRef.current?.setOpen(true);
+        return;
+      }
+      inputRef.current?.focus();
+      if (!isFocus) {
+        switchFocus();
+      }
+    }
+  };
+
+  useEffect(() => {
+    if (isFocus && !loading && !disabled) {
+      inputRef.current?.focus();
+    }
+  }, [isFocus, loading, disabled]);
 
   return (
     <div
@@ -53,8 +78,9 @@ const SwapInput: React.FC<SwapInputProps> = ({
         "swap-section rounded-2xl px-5 py-6 border transition-all duration-150 cursor-pointer",
         variantBorderMap[variant],
         disabled ? "opacity-60" : "",
+        isFocus ?"bg-[#111318]" : "bg-[#374151]",
       )}
-      style={{ background: "#111318" }}
+      onClick={handleWrapperClick}
       role="group"
       aria-label={`${label} section`}
     >
@@ -90,6 +116,7 @@ const SwapInput: React.FC<SwapInputProps> = ({
           />
         ) : (
           <input
+            ref={inputRef}
             id={inputId}
             type="text"
             inputMode="decimal"
@@ -99,19 +126,17 @@ const SwapInput: React.FC<SwapInputProps> = ({
             disabled={disabled}
             aria-label={`${label} amount`}
             aria-invalid={variant === "error"}
-            className={[
+            className={cn(
               "flex-1 bg-transparent outline-none border-none text-white font-semibold min-w-0",
               "placeholder:text-gray-600 focus:placeholder:text-gray-700",
               "text-[28px] leading-none",
-              variant === "error" ? "text-red-400" : "",
-            ]
-              .filter(Boolean)
-              .join(" ")}
+              variant === "error" ? "text-red-400" : ""
+            )}
             style={{ fontVariantNumeric: "tabular-nums" }}
           />
         )}
 
-        <TokenSelector {...tokenSelectorProps} disabled={disabled || loading} />
+        <TokenSelector {...tokenSelectorProps} ref={selectorRef} disabled={disabled || loading} />
       </div>
 
       {/* Fiat row */}

@@ -16,9 +16,9 @@ export interface TokenPickerDialogProps {
   onOpenChange: (open: boolean) => void;
   /** Token map: key = symbol, value = IToken */
   options: Record<string, IToken>;
-  /** Currently selected symbol, used to highlight the active row */
-  value: string;
-  onSelect: (symbol: string) => void;
+  /** Currently selected token, used to highlight the active row */
+  value?: IToken;
+  onSelect: (token: IToken) => void;
 }
 
 const TokenPickerDialog: React.FC<TokenPickerDialogProps> = ({
@@ -30,13 +30,11 @@ const TokenPickerDialog: React.FC<TokenPickerDialogProps> = ({
 }) => {
   const [search, setSearch] = useState('');
 
-  const tokenKeys = Object.keys(options);
-
-  const filtered = useMemo(() => {
+  const filtered = useMemo<IToken[]>(() => {
     const q = search.trim().toLowerCase();
-    if (!q) return tokenKeys;
-    return tokenKeys.filter((sym) => sym.toLowerCase().includes(q));
-  }, [search, tokenKeys]);
+    if (!q) return Object.values(options);
+    return Object.values(options).filter((token) => token.currency.toLowerCase().includes(q));
+  }, [search, options]);
 
   const handleOpenChange = (next: boolean) => {
     if (!next) setSearch('');
@@ -83,27 +81,27 @@ const TokenPickerDialog: React.FC<TokenPickerDialogProps> = ({
               No tokens found
             </p>
           ) : (
-            filtered.map((sym) => {
-              const token = options[sym];
-              const isSelected = sym === value;
+            filtered.map((token) => {
+              const isSelected = token.currency === value?.currency;
               return (
                 <button
-                  key={sym}
+                  key={token.currency}
                   type="button"
                   role="option"
                   aria-selected={isSelected}
-                  onClick={() => {
-                    onSelect(sym);
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onSelect(token);
                     handleOpenChange(false);
                   }}
                   className={cn("cursor-pointer w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left transition-colors duration-100 outline-none focus-visible:ring-2 focus-visible:ring-indigo-400", isSelected ? 'bg-[rgba(124,58,237,0.18)]' : 'hover:bg-white/5')}
                 >
-                  <TokenIcon symbol={sym} size="md" />
+                  <TokenIcon symbol={token.currency} size="md" />
                   <div className="flex flex-col min-w-0">
                     <span
                       className={cn("text-sm text-white truncate", isSelected ? 'font-bold' : 'font-semibold')}
                     >
-                      {sym}
+                      {token.currency}
                     </span>
                     {token?.price != null && (
                       <span className="text-xs text-gray-400">
