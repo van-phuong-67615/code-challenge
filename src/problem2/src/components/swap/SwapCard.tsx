@@ -7,7 +7,7 @@ import FetchErrorBanner from "../FetchErrorBanner";
 import { calcExchangeRate } from "./mixin";
 import useSwap from "@/hooks/useSwap";
 import type { IToken } from "@/types";
-import { formatPrice } from "@/lib/utils";
+import { formatCompactPrice } from "@/lib/utils";
 import { Spinner } from "../ui/spinner";
 import SwapSuccessBanner from "../SwapSuccessBanner";
 
@@ -46,9 +46,10 @@ function useDelayedBanner<T>(value: T | null | undefined): {
 }
 
 const SwapCard: React.FC = () => {
+  const { tokens, loading, error } = useTokens();
   const [sellToken, setSellToken] = useState<IToken | undefined>(undefined);
   const [buyToken, setBuyToken] = useState<IToken | undefined>(undefined);
-  const { tokens, loading, error } = useTokens();
+  const initialized = useRef(false);
   const {
     sellAmount,
     buyAmount,
@@ -63,10 +64,10 @@ const SwapCard: React.FC = () => {
 
   const isSuccess = swapState === "success";
 
-  const { rendered: renderedError, leaving: errorLeaving } = useDelayedBanner(error);
-  const { rendered: renderedSuccess, leaving: successLeaving } = useDelayedBanner(
-    isSuccess ? true : null
-  );
+  const { rendered: renderedError, leaving: errorLeaving } =
+    useDelayedBanner(error);
+  const { rendered: renderedSuccess, leaving: successLeaving } =
+    useDelayedBanner(isSuccess ? true : null);
 
   const exchangeRate = useMemo(() => {
     if (!tokens || !sellToken || !buyToken) return "";
@@ -105,6 +106,14 @@ const SwapCard: React.FC = () => {
     setBuyToken(sellToken);
     switchDirection();
   };
+  
+  useEffect(() => {
+    if (!initialized.current && tokens?.USD) {
+      initialized.current = true;
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setSellToken(tokens.USD);
+    }
+  }, [tokens]);
 
   /**
    * Factory: returns a token-select handler for one side.
@@ -113,36 +122,50 @@ const SwapCard: React.FC = () => {
    * `onFocused(token)` = recalc when THIS side is focused (reset my amount)
    * `onNotFocused(token)` = recalc when OTHER side is focused (keep opp amount)
    */
-  const makeSelectHandler = (
-    side: "sell" | "buy",
-    oppToken: IToken | undefined,
-    setMyToken: (t: IToken) => void,
-    onFocused: (token: IToken) => void,
-    onNotFocused: (token: IToken) => void,
-  ) => (token: IToken) => {
-    if (token.currency === oppToken?.currency) { handleSwitchDirection(); return; }
-    focusInput === side ? onFocused(token) : onNotFocused(token);
-    setMyToken(token);
-  };
+  const makeSelectHandler =
+    (
+      side: "sell" | "buy",
+      oppToken: IToken | undefined,
+      setMyToken: (t: IToken) => void,
+      onFocused: (token: IToken) => void,
+      onNotFocused: (token: IToken) => void,
+    ) =>
+    (token: IToken) => {
+      if (token.currency === oppToken?.currency) {
+        handleSwitchDirection();
+        return;
+      }
+      if (focusInput === side) {
+        onFocused(token);
+      } else {
+        onNotFocused(token);
+      }
+      setMyToken(token);
+    };
 
   const handleSelectSellToken = makeSelectHandler(
-    "sell", buyToken, setSellToken,
+    "sell",
+    buyToken,
+    setSellToken,
     (token) => handleSellAmountChange("0", token, buyToken),
-    (token) => { Number(buyAmount) > 0 && handleBuyAmountChange(buyAmount, token, buyToken); },
+    (token) => {
+      if (Number(buyAmount) > 0)
+        handleBuyAmountChange(buyAmount, token, buyToken);
+    },
   );
 
   const handleSelectBuyToken = makeSelectHandler(
-    "buy", sellToken, setBuyToken,
+    "buy",
+    sellToken,
+    setBuyToken,
     (token) => handleBuyAmountChange("0", sellToken, token),
-    (token) => { Number(sellAmount) > 0 && handleSellAmountChange(sellAmount, sellToken, token); },
+    (token) => {
+      if (Number(sellAmount) > 0)
+        handleSellAmountChange(sellAmount, sellToken, token);
+    },
   );
 
-  // Initial default sell token
-  useEffect(() => {
-    if (tokens?.USD) {
-      setSellToken(tokens.USD);
-    }
-  }, [tokens]);
+
 
   return (
     <div
@@ -168,7 +191,9 @@ const SwapCard: React.FC = () => {
         value={sellAmount}
         onChange={handleSellAmountChange}
         switchFocus={switchFocus}
-        fiatValue={formatPrice(parseFloat(sellAmount || "0") * (sellToken?.price || 0))}
+        fiatValue={formatCompactPrice(
+          parseFloat(sellAmount || "0") * (sellToken?.price || 0),
+        )}
         variant={"neutral"}
         loading={loading}
         disabled={loading || swapState === "loading"}
@@ -181,7 +206,10 @@ const SwapCard: React.FC = () => {
       />
 
       {/* Swap direction button */}
-      <SwapButton disabled={loading || swapState === "loading"} onClick={handleSwitchDirection} />
+      <SwapButton
+        disabled={loading || swapState === "loading"}
+        onClick={handleSwitchDirection}
+      />
 
       {/* Buy section */}
       <SwapInput
@@ -190,7 +218,9 @@ const SwapCard: React.FC = () => {
         value={buyAmount}
         onChange={handleBuyAmountChange}
         switchFocus={switchFocus}
-        fiatValue={formatPrice(parseFloat(buyAmount || "0") * (buyToken?.price || 0))}
+        fiatValue={formatCompactPrice(
+          parseFloat(buyAmount || "0") * (buyToken?.price || 0),
+        )}
         exchangeRate={exchangeRate}
         variant={"neutral"}
         loading={loading}

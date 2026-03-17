@@ -74,7 +74,7 @@ const TokenPickerDialog: React.FC<TokenPickerDialogProps> = ({
         <div
           role="listbox"
           aria-label="Choose token"
-          className="overflow-y-auto flex-1 px-2 pb-3 max-h-[60vh]"
+          className="token-list-scroll overflow-y-auto flex-1 px-2 pb-3 max-h-[60vh]"
         >
           {filtered.length === 0 ? (
             <p className="text-center text-sm text-gray-500 py-8">

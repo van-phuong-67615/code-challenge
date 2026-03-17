@@ -9,6 +9,31 @@ export const formatPrice = (price: number) => {
   return price.toLocaleString('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2, maximumFractionDigits: 4 })
 }
 
+const COMPACT_TIERS = [
+  { threshold: 1e12, suffix: 'T' },
+  { threshold: 1e9,  suffix: 'B' },
+  { threshold: 1e6,  suffix: 'M' },
+  { threshold: 1e3,  suffix: 'K' },
+] as const;
+
+/** Format a USD fiat value with compact suffix (K / M / B / T) for large amounts. */
+export const formatCompactPrice = (amount: number): string => {
+  if (!isFinite(amount) || isNaN(amount)) return '$0.00';
+  const abs = Math.abs(amount);
+  for (const { threshold, suffix } of COMPACT_TIERS) {
+    if (abs >= threshold) {
+      const compact = (amount / threshold).toFixed(2).replace(/\.00$/, '');
+      return `$${compact}${suffix}`;
+    }
+  }
+  return amount.toLocaleString('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+};
+
 /**
  * Normalizes a token symbol to match the casing used by Switcheo's token-icons repo.
  *

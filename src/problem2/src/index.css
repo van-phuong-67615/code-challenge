@@ -112,6 +112,31 @@ input[type='number'] {
   background: rgba(255, 255, 255, 0.035);
 }
 
+/* Token list – slim custom scrollbar */
+.token-list-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(124, 58, 237, 0.4) transparent;
+}
+
+.token-list-scroll::-webkit-scrollbar {
+  width: 4px;
+}
+
+.token-list-scroll::-webkit-scrollbar-track {
+  background: transparent;
+  border-radius: 9999px;
+}
+
+.token-list-scroll::-webkit-scrollbar-thumb {
+  background: rgba(124, 58, 237, 0.35);
+  border-radius: 9999px;
+  transition: background 0.2s ease;
+}
+
+.token-list-scroll::-webkit-scrollbar-thumb:hover {
+  background: rgba(124, 58, 237, 0.7);
+}
+
 /* Swap arrow button */
 .swap-arrow-btn {
   transition: transform 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
