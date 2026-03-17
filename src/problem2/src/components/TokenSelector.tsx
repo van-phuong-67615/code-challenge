@@ -61,6 +61,7 @@ const TokenSelector: React.FC<TokenSelectorProps> = ({
           aria-label={ariaLabel ?? "Select token"}
           aria-haspopup="dialog"
           aria-expanded={open}
+          data-testid="token-selector-empty"
           className="flex items-center gap-1.5 px-4 py-2 rounded-full font-semibold text-sm text-white cursor-pointer border-0 outline-none focus-visible:ring-2 focus-visible:ring-pink-400 h-auto tracking-wide"
           style={{
             background: "linear-gradient(90deg, #e0198c 0%, #ff4db8 100%)",
@@ -86,6 +87,7 @@ const TokenSelector: React.FC<TokenSelectorProps> = ({
           aria-label={ariaLabel ?? `Select token, current: ${value}`}
           aria-haspopup="dialog"
           aria-expanded={open}
+          data-testid="token-selector-selected"
         >
           <TokenIcon symbol={value.currency} size="sm" />
           <span>{value.currency}</span>

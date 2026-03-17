@@ -176,6 +176,7 @@ const SwapCard: React.FC = () => {
       }}
       role="main"
       aria-label="Currency swap form"
+      data-testid="swap-card"
     >
       {/* ── Error banner ── */}
       {renderedError && (
@@ -209,6 +210,7 @@ const SwapCard: React.FC = () => {
       <SwapButton
         disabled={loading || swapState === "loading"}
         onClick={handleSwitchDirection}
+        data-testid="switch-direction-btn"
       />
 
       {/* Buy section */}
@@ -242,6 +244,7 @@ const SwapCard: React.FC = () => {
         aria-label="Get started with swap"
         aria-disabled={isDisabled}
         onClick={handleSwap}
+        data-testid="swap-submit-btn"
       >
         {btnText}
       </Button>

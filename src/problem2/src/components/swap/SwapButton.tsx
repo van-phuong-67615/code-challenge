@@ -6,12 +6,14 @@ export interface SwapButtonProps {
   onClick?: () => void;
   disabled?: boolean;
   'aria-label'?: string;
+  'data-testid'?: string;
 }
 
 const SwapButton: React.FC<SwapButtonProps> = ({
   onClick,
   disabled = false,
   'aria-label': ariaLabel = 'Switch sell and buy tokens',
+  'data-testid': testId = 'switch-direction-btn',
 }) => {
   return (
     <div className="flex justify-center items-center py-0.5 -my-6.5 relative z-10">
@@ -22,6 +24,7 @@ const SwapButton: React.FC<SwapButtonProps> = ({
         onClick={onClick}
         disabled={disabled}
         aria-label={ariaLabel}
+        data-testid={testId}
       >
         <ArrowDownUp
           className="swap-icon"

@@ -65,6 +65,7 @@ const TokenPickerDialog: React.FC<TokenPickerDialogProps> = ({
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               autoFocus
+              data-testid="token-search-input"
               className="flex-1 bg-transparent outline-none border-none text-sm text-white placeholder:text-gray-500"
             />
           </div>
@@ -75,9 +76,10 @@ const TokenPickerDialog: React.FC<TokenPickerDialogProps> = ({
           role="listbox"
           aria-label="Choose token"
           className="token-list-scroll overflow-y-auto flex-1 px-2 pb-3 max-h-[60vh]"
+          data-testid="token-list"
         >
           {filtered.length === 0 ? (
-            <p className="text-center text-sm text-gray-500 py-8">
+            <p className="text-center text-sm text-gray-500 py-8" data-testid="token-empty-state">
               No tokens found
             </p>
           ) : (
@@ -89,6 +91,7 @@ const TokenPickerDialog: React.FC<TokenPickerDialogProps> = ({
                   type="button"
                   role="option"
                   aria-selected={isSelected}
+                  data-testid={`token-option-${token.currency}`}
                   onClick={(e) => {
                     e.stopPropagation();
                     onSelect(token);

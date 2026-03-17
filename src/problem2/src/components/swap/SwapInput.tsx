@@ -83,6 +83,7 @@ const SwapInput: React.FC<SwapInputProps> = ({
       onClick={handleWrapperClick}
       role="group"
       aria-label={`${label} section`}
+      data-testid={`${label.toLowerCase()}-section`}
     >
       {/* Top row: label + exchange rate */}
       <div className="flex items-center justify-between mb-1">
@@ -98,6 +99,7 @@ const SwapInput: React.FC<SwapInputProps> = ({
             className="text-xs"
             style={{ color: "#9ca3af" }}
             aria-label="Exchange rate"
+            data-testid="exchange-rate"
           >
             {exchangeRate}
           </span>
@@ -113,6 +115,7 @@ const SwapInput: React.FC<SwapInputProps> = ({
             style={{ background: "rgba(255,255,255,0.08)" }}
             aria-busy="true"
             aria-label="Loading amount"
+            data-testid={`${label.toLowerCase()}-loading-skeleton`}
           />
         ) : (
           <input
@@ -126,6 +129,7 @@ const SwapInput: React.FC<SwapInputProps> = ({
             disabled={disabled}
             aria-label={`${label} amount`}
             aria-invalid={variant === "error"}
+            data-testid={`${label.toLowerCase()}-amount-input`}
             className={cn(
               "flex-1 bg-transparent outline-none border-none text-white font-semibold min-w-0",
               "placeholder:text-gray-600 focus:placeholder:text-gray-700",
@@ -152,6 +156,7 @@ const SwapInput: React.FC<SwapInputProps> = ({
               .filter(Boolean)
               .join(" ")}
             style={{ color: variant === "error" ? undefined : "#6b7280" }}
+            data-testid={`${label.toLowerCase()}-fiat-value`}
           >
             {variant === "error" ? "Invalid amount" : fiatValue}
           </span>
