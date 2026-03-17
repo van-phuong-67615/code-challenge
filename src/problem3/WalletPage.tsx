@@ -1,4 +1,4 @@
-//This is requirement code
+// @ts-nocheck
 //This file will list out the computational inefficiencies and anti-patterns found
 interface WalletBalance {
   currency: string;
